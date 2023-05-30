@@ -10,7 +10,7 @@ mod entities;
 mod security;
 mod user;
 
-
+//андрюх если ты смотришь то я сделал ток базуданных и вот эту sea-orm-cli а остольное тоже самое, я уже в четверг буду заниматся остальном 
 const API_URL: &str = "/api/v1";
 
 #[tokio::main]
