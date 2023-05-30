@@ -10,13 +10,14 @@ mod entities;
 mod security;
 mod user;
 
-
 const API_URL: &str = "/api/v1";
 
 
 #[tokio::main]
 async fn main(){
+    // dotenv используется для того чтобы сохранять то что не должно быть увиденым чужими глазами это пороли и так далее
     dotenv().ok();
+    // здесь идет подключения к дата бэйс постгрес 
     let db: DatabaseConnection = Database::connect(dotenv!("DATABASE_URL")).await.unwrap();
 
     //INIT
@@ -32,6 +33,7 @@ async fn main(){
         .route(format!("{}/reg", API_URL).as_str(), post(user::registration))
         .route(format!("{}/auth", API_URL).as_str(), post( user::auth))
         .layer(cors)
+        //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db);
         
     axum::Server::bind(&"127.0.0.1:8080".parse().unwrap())

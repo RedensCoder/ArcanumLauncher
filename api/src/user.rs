@@ -36,7 +36,7 @@ fn create_token(user:User) -> Result<String, jsonwebtoken::errors::Error> {
     let token = encode(&Header::default(), &my_claims, &EncodingKey::from_secret(key.as_ref()))?;
     Ok(token)
 }
-
+//State(db): State<DatabaseConnection> это нужно чтобы принять State из bind
 pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Json<User>) -> String {
     let username = md5::compute(body.username.clone());
     let password = md5::compute(body.password.clone());
