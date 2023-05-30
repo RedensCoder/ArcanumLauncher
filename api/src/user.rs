@@ -64,7 +64,7 @@ pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Jso
         }
     }
 }
-
+// auth
 pub async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<User>) -> String {
     let username = md5::compute(body.username.clone());
     let password = md5::compute(body.password.clone());
