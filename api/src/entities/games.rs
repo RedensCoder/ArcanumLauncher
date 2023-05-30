@@ -3,19 +3,28 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "Users")]
+#[sea_orm(table_name = "Games")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
-    pub username: String,
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub id: i32,
     #[sea_orm(column_type = "Text")]
-    pub password: String,
+    pub name: String,
     #[sea_orm(column_type = "Text")]
-    pub email: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub about: Option<String>,
+    pub desc: String,
+    #[sea_orm(column_type = "Text")]
+    pub author: String,
+    #[sea_orm(column_type = "Text")]
+    pub genre: String,
+    #[sea_orm(column_type = "Text")]
+    pub about: String,
     #[sea_orm(column_type = "Text")]
     pub avatar: String,
-    pub lvl: i32,
+    #[sea_orm(column_type = "Text")]
+    pub trailer: String,
+    #[sea_orm(column_type = "Text")]
+    pub file: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub screenshots: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
