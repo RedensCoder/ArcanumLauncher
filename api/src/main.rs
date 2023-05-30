@@ -19,7 +19,7 @@ async fn main(){
     dotenv().ok();
     let db: DatabaseConnection = Database::connect(dotenv!("DATABASE_URL")).await.unwrap();
 
-    //INITTEST
+    //INIT
     let init_sql = fs::read_to_string("database/init.sql").unwrap();
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, init_sql)).await.unwrap();
     
