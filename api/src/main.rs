@@ -10,6 +10,7 @@ mod entities;
 mod security;
 mod user;
 
+//TEST
 const API_URL: &str = "/api/v1";
 
 #[tokio::main]
