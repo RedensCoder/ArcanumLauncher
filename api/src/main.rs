@@ -31,7 +31,7 @@ async fn main(){
 
     let app = Router::new()
         .route(format!("{}/reg", API_URL).as_str(), post(user::registration))
-        .route(format!("{}/auth", API_URL).as_str(), post( user::auth))
+        .route(format!("{}/auth", API_URL).as_str(), post(user::auth))
         .layer(cors)
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db);

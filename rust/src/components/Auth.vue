@@ -5,13 +5,11 @@
 
     <div class="content">
         <div class="form">
-            <p class="label">Регистрация</p>
+            <p class="label">Авторизация</p>
             <input v-model="login" type="text" placeholder="Имя пользователя" required />
-            <input v-model="mail" type="email" placeholder="Почта" required />
             <input v-model="pass" type="password" placeholder="Пароль" required />
-            <input v-model="subpass" type="password" placeholder="Повторите Пароль" required />
-            <p class="text1">У тебя уже есть аккаунт? <router-link to="/signin" class="auth">Авторизация</router-link></p>
-            <button @click="registration">Регистрация</button>
+            <p class="text1">У тебя всё ещё нету аккаунта? <router-link to="/signup" class="auth">Регистрация</router-link></p>
+            <button @click="auth">Войти</button>
             <p class="error">{{ error }}</p>
         </div>
     </div>
@@ -29,27 +27,20 @@
     const error = ref("");
 
     const login = ref("");
-    const mail = ref("");
     const pass = ref("");
-    const subpass = ref("");
 
-    const registration = async () => {
-        if (login.value !== "" || mail.value !== "" || pass.value !== "" || subpass.value !== "") {
-            if (pass.value === subpass.value) {
-                const req = await axios.post("http://127.0.0.1:8080/api/v1/reg", {
-                    username: login.value,
-                    email: mail.value,
-                    password: pass.value
-                });
+    const auth = async () => {
+        if (login.value !== "" || pass.value !== "") {
+            const req = await axios.post("http://127.0.0.1:8080/api/v1/auth", {
+                username: login.value,
+                password: pass.value
+            });
 
-                if (req.data != "User is already!") {
-                    localStorage.setItem("token", req.data);
-                    router.push("/main");
-                } else {
-                    error.value = "Игрок с таким именем уже есть!";
-                } 
+            if (req.data != "User not found!") {
+                localStorage.setItem("token", req.data);
+                router.push("/main");
             } else {
-                error.value = "Игрок, твои пароли не совпадают!";
+                error.value = "Игрок не найден!";
             }
         } else {
             error.value = "Игрок, ты заполнил не все данные!";

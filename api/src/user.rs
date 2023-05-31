@@ -16,6 +16,12 @@ use std::future::Future;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     pub username: String,
+    pub email: String,
+    pub password: String
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserAuth {
+    pub username: String,
     pub password: String
 }
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,6 +46,7 @@ fn create_token(user:User) -> Result<String, jsonwebtoken::errors::Error> {
 pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Json<User>) -> String {
     let username = md5::compute(body.username.clone());
     let password = md5::compute(body.password.clone());
+    let email = md5::compute(body.email.clone());
 
     let user = users::Entity::find()
     .filter(users::Column::Username.eq(format!("{:?}",username)))
@@ -54,6 +61,10 @@ pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Jso
             let new_user = users::ActiveModel {
                 username: Set(format!("{:?}",username)),
                 password: Set(format!("{:?}",password)),
+                email: Set(format!("{:?}",email)),
+                about: Set(Some("".to_string())),
+                avatar: Set("http://127.0.0.1:8080/api/v1/img/avatar_none.png".to_string()),
+                lvl: Set(1),
                 ..Default::default()
             };
             
@@ -65,7 +76,7 @@ pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Jso
     }
 }
 // auth 
-pub async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<User>) -> String {
+pub async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<UserAuth>) -> String {
     let username = md5::compute(body.username.clone());
     let password = md5::compute(body.password.clone());
 

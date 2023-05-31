@@ -2,8 +2,8 @@
     <header class="header">
         <router-link to="/" class="text1">ARCANUM LAUNCHER</router-link>
         <div class="buttons">
-            <router-link to="/reg" class="reg"> Зарегистрироваться</router-link>
-            <router-link to="/" class="sign">Войти</router-link>
+            <router-link to="/signup" class="reg"> Зарегистрироваться</router-link>
+            <router-link to="/signin" class="sign">Войти</router-link>
         </div>
     </header>
     <div class="content">
@@ -39,8 +39,6 @@
 </script>
 
 <style scoped>
-    @import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Russo+One&display=swap');
-
     /*  HEADER  */
     .header {
         background-color: #393E46;
@@ -89,7 +87,6 @@
 
     /*  CONTENT  */
     .content {
-        background: #222831;
         padding: 43px;
     }
 
