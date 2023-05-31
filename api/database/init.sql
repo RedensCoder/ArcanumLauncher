@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT public.EXISTS users
+CREATE TABLE IF NOT EXISTS public.users
 (
     username text COLLATE pg_catalog."default" NOT NULL,
     password text COLLATE pg_catalog."default" NOT NULL,

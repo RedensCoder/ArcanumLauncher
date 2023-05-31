@@ -1,9 +1,9 @@
 <template>
-  <RouterView />
+    <h1>Adrian Lox</h1>
 </template>
 
 <script setup>
-  import { RouterView } from 'vue-router'
+
 </script>
 
 <style scoped>
