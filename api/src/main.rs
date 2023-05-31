@@ -15,7 +15,7 @@ const API_URL: &str = "/api/v1";
 
 #[tokio::main]
 async fn main(){
-    // dotenv используется для того чтобы сохранять то что не должно быть увиденым чужими глазами это пороли и так далее
+    // dotenv используется для того чтобы сохранять то что не должно быть увиденым чужими глазами это пOроли и так далее
     dotenv().ok();
     // здесь идет подключения к дата бэйс постгрес 
     let db: DatabaseConnection = Database::connect(dotenv!("DATABASE_URL")).await.unwrap();
