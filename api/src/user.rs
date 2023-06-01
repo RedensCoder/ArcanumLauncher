@@ -5,9 +5,7 @@ use dotenvy::dotenv;
 use serde::{Serialize, Deserialize};
 use sea_orm::{ActiveModelTrait, Set, DatabaseConnection, QueryFilter, ColumnTrait, EntityTrait};
 
-use crate::{entities::users, security::{AuthReg, create_token}, security};
-
-
+use crate::{entities::users, security::{AuthReg, create_token}};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {

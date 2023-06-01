@@ -1,8 +1,9 @@
 #![allow(unused_variables)]
 use std::{fs};
+use bytes::avatars_bytes;
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
-use axum::{Router, routing::post};
+use axum::{Router, routing::{post, get}};
 use dotenvy_macro::dotenv;
 use tower_http::cors::{Any, CorsLayer};
 use user::{registration, auth};
@@ -10,10 +11,13 @@ use user::{registration, auth};
 mod entities;
 mod security;
 mod user;
+mod bytes;
 
 //андрюх если ты смотришь то я сделал ток базуданных и вот эту sea-orm-cli а остольное тоже самое, я уже в четверг буду заниматся остальном 
 const API_URL: &str = "/api/v1";
-
+fn route(route:&str)-> String{
+   return format!("{}/{}", API_URL, route)
+}
 #[tokio::main]
 async fn main(){
     // dotenv используется для того чтобы сохранять то что не должно быть увиденым чужими глазами это пOроли и так далее
@@ -33,8 +37,9 @@ async fn main(){
         .allow_origin(Any);
 
     let app = Router::new()
-        .route(format!("{}/reg", API_URL).as_str(), post(registration))
-        .route(format!("{}/auth", API_URL).as_str(), post(auth))
+        .route(&route("reg"), post(registration))
+        .route(&route("auth"), post(auth))
+        .route(&route("img/:name"), get(avatars_bytes))
         .layer(cors)
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db);
