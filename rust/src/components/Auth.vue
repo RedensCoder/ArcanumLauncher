@@ -23,6 +23,7 @@
     import { ref } from 'vue';
     import axios from "axios";
     import router from '../router';
+    import { onMounted } from 'vue';
 
     const error = ref("");
 
@@ -32,13 +33,14 @@
     const auth = async () => {
         if (login.value !== "" || pass.value !== "") {
             const req = await axios.post("http://127.0.0.1:8080/api/v1/auth", {
+                type: "auth",
                 username: login.value,
                 password: pass.value
             });
 
             if (req.data != "User not found!") {
                 localStorage.setItem("token", req.data);
-                router.push("/main");
+                router.push("/lib");
             } else {
                 error.value = "Игрок не найден!";
             }
@@ -46,6 +48,12 @@
             error.value = "Игрок, ты заполнил не все данные!";
         }
     }
+
+    onMounted(() => {
+        if (localStorage.getItem("token") !== null) {
+            router.push("/lib");
+        }
+    })
 </script>
 
 <style scoped>
