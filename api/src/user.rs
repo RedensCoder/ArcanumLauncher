@@ -109,7 +109,7 @@ pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Jso
                 email: Set(format!("{:?}",email)),
                 about: Set(Some("".to_string())),
                 avatar: Set("http://127.0.0.1:8080/api/v1/img/avatar_none.png".to_string()),
-                lvl: Set(1),
+                lvl: Set(0),
                 ..Default::default()
             };
             
