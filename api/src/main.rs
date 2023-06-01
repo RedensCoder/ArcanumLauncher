@@ -1,5 +1,5 @@
 #![allow(unused_variables)]
-use std::{path::Path, fs};
+use std::{fs};
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
 use axum::{Router, routing::post};

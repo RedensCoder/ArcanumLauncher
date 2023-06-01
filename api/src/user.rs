@@ -1,12 +1,11 @@
 use axum::Json;
 use axum::extract::State;
 use dotenvy::dotenv;
-use dotenvy_macro::dotenv;
 
 use serde::{Serialize, Deserialize};
 use sea_orm::{ActiveModelTrait, Set, DatabaseConnection, QueryFilter, ColumnTrait, EntityTrait};
-use jsonwebtoken::{encode, EncodingKey, Header};
-use crate::{entities::users};
+
+use crate::{entities::users, security::AuthReg, security};
 
 
 
@@ -27,65 +26,7 @@ pub struct UserAuth {
     pub username: String,
     pub password: String
 }
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type")]
-pub enum AuthReg {
-    #[serde(rename = "reg")]
-    User(User),
-    #[serde(rename = "auth")]
-    UserAuth(UserAuth) 
-}
 
-impl AuthReg {
-    pub fn to_user_auth(&self) -> UserAuth {
-        match self {
-            AuthReg::User(user_reg) => UserAuth {
-                username: user_reg.username.clone(),
-                password: user_reg.password.clone(),
-            },
-            AuthReg::UserAuth(user_auth) => UserAuth {
-                username: user_auth.username.clone(),
-                password: user_auth.password.clone(),
-            },
-        }
-    }
-    pub fn reg(&self) -> Result<&User, &UserAuth> {
-        match &self {
-            AuthReg::User(user) => Ok(user),
-            AuthReg::UserAuth(user) => Err(user)
-        }
-    }
-    pub fn auth(&self) -> Result<&UserAuth, &User> {
-        match &self {
-            AuthReg::UserAuth(user) => Ok(user),
-            AuthReg::User(user) => Err(user)
-        }
-    }
-}
-     
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims{
-    pub user: UserAuth,
-    pub exp: i64
-}
-
-fn create_token(body:&AuthReg) -> Result<String, String> {
-    let exp = chrono::Utc::now() + chrono::Duration::hours(1);
-    let user = body.to_user_auth();
-    let my_claims = Claims {
-        user,
-        exp : exp.timestamp() as i64
-    };
-    dotenv().ok();
-    let key = dotenv!("SECRET");
-    
-    let token = match encode(&Header::default(), &my_claims, &EncodingKey::from_secret(key.as_ref())){
-        Ok(t) => t,
-        Err(e) => return Err(format!("Ошибка при создании токена: {}", e))
-    };
-    Ok(token)
-}
 //State(db): State<DatabaseConnection> это нужно чтобы принять State из bind
 pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Json<AuthReg>) -> String {
     let user:&User = &body.reg().unwrap().clone();
@@ -116,7 +57,7 @@ pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Jso
             new_user.insert(&db).await.unwrap();
             dotenv().ok();
             // let token = encode(&Header::default(), &(body.username.clone(), body.password.clone()), &EncodingKey::from_secret(dotenv!("SECRET").as_ref())).unwrap();
-            let token = create_token(&body.clone()).unwrap();
+            let token = security::create_token(&body.clone()).unwrap();
             return token;
            
         }
@@ -137,7 +78,7 @@ pub async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<AuthReg
     match user {
         Some(_) => {
             dotenv().ok();
-            let token = create_token(&body.clone()).unwrap();
+            let token = security::create_token(&body.clone()).unwrap();
             return String::from(token);
         },
         None => {
