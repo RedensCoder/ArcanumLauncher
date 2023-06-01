@@ -1,6 +1,6 @@
 use dotenvy_macro::dotenv;
 use dotenvy::dotenv;
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jsonwebtoken::{encode, EncodingKey, Header, TokenData};
 use jsonwebtoken::{decode, DecodingKey, Validation, errors::ErrorKind};
 use sea_orm::{QueryFilter, ColumnTrait, EntityTrait, DatabaseConnection};
 use serde::{Serialize, Deserialize};
@@ -51,11 +51,11 @@ pub struct Claims{
 }
 
 pub(crate) fn create_token(body:&AuthReg) -> Result<String, String> {
-    let exp = chrono::Utc::now() + chrono::Duration::hours(1);
+    let exp = chrono::Utc::now() + chrono::Duration::weeks(1);
     let user = body.to_user_auth();
     let my_claims = Claims {
         user,
-        exp : exp.timestamp() as i64
+        exp: exp.timestamp() as i64 
     };
     dotenv().ok();
     let key = dotenv!("SECRET");
@@ -66,18 +66,29 @@ pub(crate) fn create_token(body:&AuthReg) -> Result<String, String> {
     };
     Ok(token)
 }
-pub async fn verify(token: &str, key: &str, db: DatabaseConnection) -> Result<(), jsonwebtoken::errors::Error> {
-    let token_data = decode::<Claims>(token, &DecodingKey::from_secret(key.as_ref()), &Validation::default())?;
+pub async fn verify(token: &str, db: DatabaseConnection) -> Option<TokenData<Claims>> {
+    dotenv().ok();
+    let token_data = decode::<Claims>(token, &DecodingKey::from_secret(dotenv!("SECRET").as_ref()), &Validation::default()).unwrap();
+
     let now: i64 = chrono::Utc::now().timestamp();
-    if token_data.claims.exp < now {
-        return Err(ErrorKind::ExpiredSignature.into());
+    if token_data.claims.exp > now {
+        let user = users::Entity::find()
+        .filter(users::Column::Username.eq(format!("{:?}", md5::compute(token_data.claims.user.username.clone()))))
+        .filter(users::Column::Password.eq(format!("{:?}", md5::compute(token_data.claims.user.password.clone()))))
+        .one(&db)
+        .await.unwrap();
+
+        match user {
+            Some(_) => {
+                print!("Tochno some vernul");
+                return Some(token_data);
+            },
+            None => {
+                println!("USera net");
+                return None;
+            }
+        }
     }
-
-    let user = users::Entity::find()
-    .filter(users::Column::Username.eq(format!("{:?}", token_data.claims.user.username)))
-    .filter(users::Column::Password.eq(format!("{:?}", token_data.claims.user.password)))
-    .one(&db)
-    .await.unwrap();
-
-    Ok(())
+    println!("constructia nahui posla");
+    None
 }

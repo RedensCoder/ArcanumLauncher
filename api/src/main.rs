@@ -30,7 +30,7 @@ async fn main(){
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, users_sql)).await.unwrap();
     let library_sql = fs::read_to_string("database/user_library.sql").unwrap();
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, library_sql)).await.unwrap();
-    
+
     let cors: CorsLayer = CorsLayer::new()
         .allow_methods(Any)
         .allow_headers(Any)
@@ -40,6 +40,7 @@ async fn main(){
         .route(&route("reg"), post(registration))
         .route(&route("auth"), post(auth))
         .route(&route("img/:name"), get(avatars_bytes))
+        .route(&route("upload"), post(bytes::upload_file))
         .layer(cors)
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db);
@@ -48,5 +49,4 @@ async fn main(){
         .serve(app.into_make_service())
         .await
         .unwrap();
-
 }
