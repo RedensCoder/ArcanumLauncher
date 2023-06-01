@@ -5,6 +5,7 @@ use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
 use axum::{Router, routing::post};
 use dotenvy_macro::dotenv;
 use tower_http::cors::{Any, CorsLayer};
+use user::{registration, auth};
 
 mod entities;
 mod security;
@@ -32,8 +33,8 @@ async fn main(){
         .allow_origin(Any);
 
     let app = Router::new()
-        .route(format!("{}/reg", API_URL).as_str(), post(user::registration))
-        .route(format!("{}/auth", API_URL).as_str(), post(user::auth))
+        .route(format!("{}/reg", API_URL).as_str(), post(registration))
+        .route(format!("{}/auth", API_URL).as_str(), post(auth))
         .layer(cors)
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db);

@@ -5,7 +5,7 @@ use dotenvy::dotenv;
 use serde::{Serialize, Deserialize};
 use sea_orm::{ActiveModelTrait, Set, DatabaseConnection, QueryFilter, ColumnTrait, EntityTrait};
 
-use crate::{entities::users, security::AuthReg, security};
+use crate::{entities::users, security::{AuthReg, create_token}, security};
 
 
 
@@ -28,7 +28,7 @@ pub struct UserAuth {
 }
 
 //State(db): State<DatabaseConnection> это нужно чтобы принять State из bind
-pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Json<AuthReg>) -> String {
+pub(crate) async fn registration( State(db): State<DatabaseConnection>, Json(body): Json<AuthReg>) -> String {
     let user:&User = &body.reg().unwrap().clone();
     let username = md5::compute(user.username.clone());
     let password = md5::compute(user.password.clone());
@@ -57,14 +57,14 @@ pub async fn registration( State(db): State<DatabaseConnection>, Json(body): Jso
             new_user.insert(&db).await.unwrap();
             dotenv().ok();
             // let token = encode(&Header::default(), &(body.username.clone(), body.password.clone()), &EncodingKey::from_secret(dotenv!("SECRET").as_ref())).unwrap();
-            let token = security::create_token(&body.clone()).unwrap();
+            let token = create_token(&body.clone()).unwrap();
             return token;
            
         }
     }
 }
 // auth 
-pub async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<AuthReg>) -> String {
+pub(crate) async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<AuthReg>) -> String {
     let user:&UserAuth = &body.auth().unwrap().clone();
     let username = md5::compute(user.username.clone());
     let password = md5::compute(user.password.clone());
@@ -78,7 +78,7 @@ pub async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<AuthReg
     match user {
         Some(_) => {
             dotenv().ok();
-            let token = security::create_token(&body.clone()).unwrap();
+            let token = create_token(&body.clone()).unwrap();
             return String::from(token);
         },
         None => {
