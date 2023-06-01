@@ -21,8 +21,10 @@ async fn main(){
     let db: DatabaseConnection = Database::connect(dotenv!("DATABASE_URL")).await.unwrap();
 
     //INIT
-    let init_sql = fs::read_to_string("database/init.sql").unwrap();
-    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, init_sql)).await.unwrap();
+    let users_sql = fs::read_to_string("database/users.sql").unwrap();
+    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, users_sql)).await.unwrap();
+    let library_sql = fs::read_to_string("database/user_library.sql").unwrap();
+    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, library_sql)).await.unwrap();
     
     let cors: CorsLayer = CorsLayer::new()
         .allow_methods(Any)

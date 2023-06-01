@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS public.users
     avatar text COLLATE pg_catalog."default" NOT NULL,
     lvl integer,
     CONSTRAINT users_pkey PRIMARY KEY (username)
-)
+);
