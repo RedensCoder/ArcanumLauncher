@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 use std::{fs};
 use bytes::avatars_bytes;
-use crud::{update};
+use crud::{update, delete_by_auth_json};
 use dotenvy::dotenv;
 use entities::users::{};
 use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
@@ -46,9 +46,8 @@ async fn main(){
         .route(&route("img/:name"), get(avatars_bytes))
         .route(&route("upload"), post(bytes::upload_file))
         .route(&route("getUserByUsername/:username"), get(get_user_by_username))
-        // .route(&route("test"), get(delete_by_name))
-        // .route(&route("test2"), get(update_avatar))
-        .route(&route("test"), post(update))
+        .route(&route("deleteByAuthJson"), post(delete_by_auth_json))
+        .route(&route("updateAtribut"), post(update))
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db)
         .layer(cors);

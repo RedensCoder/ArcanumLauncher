@@ -4,6 +4,7 @@ use sea_orm::entity::prelude::*;
 use sea_orm::{entity::*, sea_query::*, query::*, Update,ActiveModelTrait, Set};
 use crate::entities::users::SubQueryStatement;
 use crate::entities::users::query::UpdateStatement;
+use crate::user::UserAuth;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "users")]
@@ -35,17 +36,8 @@ impl Related<super::user_library::Entity> for Entity {
 
 impl ActiveModelBehavior for ActiveModel {}
 
-// pub async fn delete_by_name(State(db): State<DatabaseConnection>){
-//     let mut user = Entity::find_by_id("8943ac345b34277db00533dc20f1fb1c")
-//     .one(&db)
-//     .await.unwrap();
-    
-//     user.unwrap().delete(&db).await.unwrap();
-//     // println!("{:#?}", user);
-//     // println!("мы нашли его спустя полгода");
-//     println!("мы нашли его спустя полгода и удалили");
-// // Обновляем значение электронной почты в поле ActiveModel структуре
-// }
+
+
 // pub async fn update_avatar(State(db): State<DatabaseConnection>){
 //     let user = Entity::find_by_id("8943ac345b34277db00533dc20f1fb1c")
 //     .one(&db.clone())
