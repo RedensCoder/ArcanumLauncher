@@ -33,7 +33,7 @@ pub async fn upload_file(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, 
             .await.unwrap();
 
             let user = users::Entity::find()
-                .filter(users::Column::Username.eq(format!("{:?}",token.claims.user.username)))
+                .filter(users::Column::Username.eq(format!("{}",token.claims.user.username)))
                 .one(&db)
                 .await.unwrap();
 
