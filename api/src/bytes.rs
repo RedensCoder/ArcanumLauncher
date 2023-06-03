@@ -7,7 +7,7 @@ use tokio::{fs::File, io::AsyncWriteExt};
 use crate::{security::verify, entities::users};
 
 pub async fn avatars_bytes(Path(name):Path<String>) -> Result<Response<Full<Bytes>>, String>{
-   let file = fs::read(format!("data_bytes/users_avatar/{}_avatar.png", name));
+   let file = fs::read(format!("data_bytes/users_avatar/{}", name));
 
    match file {
       Ok(_) => {
