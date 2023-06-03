@@ -33,9 +33,16 @@
     </div>
 
 </template>
-
+    
 <script setup>
+    import { onMounted } from 'vue';
+    import router from '../router';
 
+    onMounted(() => {
+        if (localStorage.getItem("token") !== null) {
+            router.push("/lib");
+        }
+    })
 </script>
 
 <style scoped>
