@@ -74,7 +74,7 @@ pub async fn verify(token: &str, db: &DatabaseConnection) -> Option<TokenData<Cl
     let now: i64 = chrono::Utc::now().timestamp();
     if token_data.claims.exp > now {
         let user = users::Entity::find()
-        .filter(users::Column::Username.eq(token_data.claims.user.username.clone()))
+        .filter(users::Column::Username.eq(format!("{:?}", token_data.claims.user.username.clone())))
         .filter(users::Column::Password.eq(format!("{:?}", md5::compute(token_data.claims.user.password.clone()))))
         .one(db)
         .await.unwrap();
