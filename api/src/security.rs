@@ -1,11 +1,11 @@
 use dotenvy_macro::dotenv;
 use dotenvy::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header, TokenData};
-use jsonwebtoken::{decode, DecodingKey, Validation, errors::ErrorKind};
-use sea_orm::{QueryFilter, ColumnTrait, EntityTrait, DatabaseConnection, ActiveValue};
+use jsonwebtoken::{decode, DecodingKey, Validation};
+use sea_orm::{QueryFilter, ColumnTrait, EntityTrait, DatabaseConnection};
 use serde::{Serialize, Deserialize};
 use crate::user::{UserAuth, User};
-use crate::entities::users::{self, ActiveModel};
+use crate::entities::users::{self};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]

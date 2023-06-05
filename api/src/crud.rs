@@ -1,10 +1,14 @@
+
 use axum::{extract::State, Json};
-use sea_orm::{DatabaseConnection, ActiveModelTrait, EntityTrait, IntoActiveModel, Set, ModelTrait};
+use sea_orm::{DatabaseConnection, ActiveModelTrait, EntityTrait, Set, ModelTrait, QueryFilter, ColumnTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::{entities::users::{self, Entity}, user::UserAuth};
+use crate::{entities::{users::{self, Entity}, purchase::{self}, games}, user::{UserAuth}};
+//////////////////////////////////////////////CRUD FOR users.rs
 #[derive(Debug,Clone, Serialize, Deserialize)]
 pub enum Atributs {
+    #[serde(rename = "nickname")]
+    Nickname(String),
     #[serde(rename = "password")]
     Password(String),
     #[serde(rename = "email")]
@@ -32,8 +36,11 @@ impl From<Atributs> for UpdateRequest {
             atribut : atribut.clone(),
         };
         match atribut {
-            Atributs::Password(password_value) => {
-                result.password = password_value;
+            Atributs::Nickname(nickname_value) => {
+                result.atribut = Atributs::Nickname(nickname_value);
+            },
+             Atributs::Password(password_value) => {
+                result.atribut = Atributs::Password(password_value);
             },
             Atributs::Email(email_value) => {
                 result.atribut = Atributs::Email(email_value);
@@ -57,15 +64,17 @@ impl From<Atributs> for UpdateRequest {
 //     }
 // }
 pub async fn update(State(db): State<DatabaseConnection>, Json(body): Json<UpdateRequest>){
-    let mut user = users::Entity::find_by_id(&body.username)
+    let user = users::Entity::find_by_id(&body.username)
         .one(&db)
         .await
         .unwrap();
     let mut user: users::ActiveModel = user.unwrap().into();
     match &body.atribut {
+        Atributs::Nickname(nickname) => {
+            user.nickname = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(nickname).unwrap().to_string());
+        }
         Atributs::Password(password) => {
             user.password = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(password).unwrap().to_string());
-            println!("{:?}", &user);
         }
         Atributs::Email(email) => {
             user.email = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(email).unwrap().to_string());
@@ -78,11 +87,11 @@ pub async fn update(State(db): State<DatabaseConnection>, Json(body): Json<Updat
         }
     }
     
-    user.save(&db).await.unwrap();
-
+    user.update(&db).await.unwrap();
+    
 }
 pub async fn delete_by_auth_json(State(db): State<DatabaseConnection>, Json(body): Json<UserAuth>){
-    let mut user = Entity::find_by_id(body.username)
+    let user = Entity::find_by_id(body.username)
     .one(&db)
     .await.unwrap();
     
@@ -90,14 +99,77 @@ pub async fn delete_by_auth_json(State(db): State<DatabaseConnection>, Json(body
     
     println!("мы нашли его спустя полгода и удалили");
 }
+////////////////////////////////////////////////////CRUD FOR purchase.rs
+#[derive(Debug, Clone,Serialize, Deserialize)]
+pub struct Purchase{
+    pub username: String,
+    pub password: String,
+    pub gamename: String,
+}
+#[derive(Debug, Clone,Serialize, Deserialize)]
+pub struct UserTime{
+    pub username: String,
+    pub gamename: String,
+    pub playtime: f32
+}
 
-// pub async fn update_username(State(db): State<DatabaseConnection>){
-//     let user = users::Entity::find_by_id("8943ac345b34277db00533dc20f1fb1c")
-//     .one(&db.clone())
-//     .await.unwrap();
-
-// let mut user: users::ActiveModel = user.unwrap().into();
-
-// user.username = Set();
-// user.update(&db).await.unwrap();
+/////пример запроса /addPurchase
+// {
+//   "username":"adrian",
+//   "password":"popricol",
+//   "gamename":"naruto"
 // }
+pub async fn add_purcesh(State(db): State<DatabaseConnection>, Json(body): Json<Purchase>)-> String{
+    let user = users::Entity::find_by_id(body.username)
+    .one(&db)
+    .await.unwrap();
+    let game = games::Entity::find_by_id(body.gamename)
+    .one(&db)
+    .await.unwrap();
+    match user {
+        Some(user) => {
+                match game {
+                    Some(game) => {
+                        let new_purchase = purchase::ActiveModel {
+                                        username:Set(user.username),
+                                        game:Set(game.gamename),
+                                        ..Default::default()
+                                    };
+                                    new_purchase.insert(&db.clone()).await.unwrap();
+                                    return String::from("Вы успешно совершили покупку!");
+                    },
+                    None => {
+                        return String::from("Возможно возникла ошибка, пока мы не владеем такой игрой попробуйте с ново");
+                    }
+                }
+        },
+        None => {
+            return String::from("Возможно возникла ошибка, пользователь небыл найден попробуйте с ново");
+    }
+    }
+
+}
+//////счетчик часов в игре
+/// пример запроса для /addPlayTime
+// {
+//     "username":"adrian",
+//     "gamename":"naruto",
+//     "playtime": 1.25
+//   }
+pub async fn add_playtime(State(db): State<DatabaseConnection>, Json(body): Json<UserTime>)-> String{
+    let entries = purchase::Entity::find()
+    .filter(purchase::Column::Username.eq(body.username))
+    .filter(purchase::Column::Game.eq( body.gamename))
+    .one(&db)
+    .await.unwrap();
+match entries {
+    Some(entires) => {
+        let mut conv : purchase::ActiveModel = entires.clone().into(); 
+        conv.hours = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(entires.clone().hours).unwrap()+ body.playtime);
+        conv.update(&db).await.unwrap();
+        String::from("Наигранное время успешно было внесена в базу данных")
+
+    },
+    None => {String::from("Возможно возникла ошибка, пользователь небыл найден попробуйте с ново")},
+}
+}

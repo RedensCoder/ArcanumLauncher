@@ -16,8 +16,6 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub avatar: String,
     pub lvl: i32,
-    #[sea_orm(column_type = "Text")]
-    pub nickname: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

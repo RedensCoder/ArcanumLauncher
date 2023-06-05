@@ -2,18 +2,29 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "user_library")]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
+#[sea_orm(table_name = "purchase")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub id: i64,
     #[sea_orm(column_type = "Text")]
     pub username: String,
-    pub games: Option<i64>,
+    #[sea_orm(column_type = "Text")]
+    pub game: String,
+    #[sea_orm(column_type = "Float")]
+    pub hours: f32,
+    #[sea_orm(primary_key)]
+    pub id_purchase: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::games::Entity",
+        from = "Column::Game",
+        to = "super::games::Column::Gamename",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Games,
     #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::Username",
@@ -22,6 +33,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Users,
+}
+
+impl Related<super::games::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Games.def()
+    }
 }
 
 impl Related<super::users::Entity> for Entity {

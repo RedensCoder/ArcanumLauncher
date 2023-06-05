@@ -1,7 +1,7 @@
-use std::{fs::{self}, convert::Infallible};
+use std::{fs::{self}};
 
-use axum::{extract::{Path, State}, body::{Full, Bytes}, response::Response, Json, headers::{authorization::Bearer, Authorization}, TypedHeader};
-use jsonwebtoken::errors::ErrorKind;
+use axum::{extract::{Path, State}, body::{Full, Bytes}, response::Response, headers::{authorization::Bearer, Authorization}, TypedHeader};
+
 use sea_orm::{DatabaseConnection, ColumnTrait, EntityTrait, QueryFilter, Set, ActiveModelTrait,};
 use tokio::{fs::File, io::AsyncWriteExt};
 use crate::{security::verify, entities::users};

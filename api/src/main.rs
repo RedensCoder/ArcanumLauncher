@@ -1,9 +1,8 @@
 #![allow(unused_variables)]
 use std::{fs};
 use bytes::avatars_bytes;
-use crud::{update, delete_by_auth_json};
+use crud::{update, delete_by_auth_json, add_purcesh, add_playtime};
 use dotenvy::dotenv;
-use entities::users::{};
 use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
 use axum::{Router, routing::{post, get}};
 use dotenvy_macro::dotenv;
@@ -32,8 +31,10 @@ async fn main(){
     //INIT
     let users_sql = fs::read_to_string("database/users.sql").unwrap();
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, users_sql)).await.unwrap();
-    let library_sql = fs::read_to_string("database/user_library.sql").unwrap();
-    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, library_sql)).await.unwrap();
+    let purchase_sql = fs::read_to_string("database/purchase.sql").unwrap();
+    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, purchase_sql)).await.unwrap();
+    let games_sql = fs::read_to_string("database/games.sql").unwrap();
+    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, games_sql)).await.unwrap();
 
     let cors: CorsLayer = CorsLayer::new()
         .allow_methods(Any)
@@ -48,6 +49,8 @@ async fn main(){
         .route(&route("getUserByUsername/:username"), get(get_user_by_username))
         .route(&route("deleteByAuthJson"), post(delete_by_auth_json))
         .route(&route("updateAtribut"), post(update))
+        .route(&route("addPurchase"), post(add_purcesh))
+        .route(&route("addPlayTime"), post(add_playtime))
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db)
         .layer(cors);

@@ -25,12 +25,12 @@ pub struct FullUser {
     pub lvl: i32
 }
 
-impl User {
-    pub fn to_userauth(&self) -> UserAuth {
-        let user_auth = UserAuth{username: self.username.clone(), password: self.password.clone()};
-        return user_auth; 
-    }
-}
+// impl User {
+//     pub fn to_userauth(&self) -> UserAuth {
+//         let user_auth = UserAuth{username: self.username.clone(), password: self.password.clone()};
+//         return user_auth; 
+//     }
+// }
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserAuth {
     pub username: String,
@@ -38,6 +38,13 @@ pub struct UserAuth {
 }
 
 //State(db): State<DatabaseConnection> это нужно чтобы принять State из bind
+///////пример запроса для регистрации
+//{
+//     "type" : "reg",
+//     "username": "adrian",
+//     "password": "popricolu",
+//     "email":"popricolu@.mail"
+//   }
 pub(crate) async fn registration( State(db): State<DatabaseConnection>, Json(body): Json<AuthReg>) -> String {
     let user:&User = &body.reg().unwrap().clone();
     let username = user.username.clone();
@@ -55,12 +62,13 @@ pub(crate) async fn registration( State(db): State<DatabaseConnection>, Json(bod
         },
         None => {
             let new_user = users::ActiveModel {
-                username: Set(format!("{}",username)),
+                username: Set(format!("{}",username.clone())),
                 password: Set(format!("{:?}",password.to_owned())),
                 email: Set(format!("{}",email)),
-                about: Set(Some("".to_string())),
+                about: Set(None),
                 avatar: Set("http://127.0.0.1:8080/api/v1/img/none_avatar.png".to_string()),
-                lvl: Set(1),
+                lvl:Set(1),
+                nickname: Set(format!("{}",username.clone())),
                 ..Default::default()
             };
             
@@ -72,6 +80,12 @@ pub(crate) async fn registration( State(db): State<DatabaseConnection>, Json(bod
     }
 }
 // auth 
+///////пример запроса для авторизации
+//{
+//     "type" : "auth",
+//     "username": "adrian",
+//     "password": "popricolu"
+//   }
 pub(crate) async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<AuthReg>) -> String {
     let user:&UserAuth = &body.auth().unwrap().clone();
     let username = user.username.clone();
