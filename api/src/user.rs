@@ -65,9 +65,7 @@ pub(crate) async fn registration( State(db): State<DatabaseConnection>, Json(bod
                 username: Set(format!("{}",username.clone())),
                 password: Set(format!("{:?}",password.to_owned())),
                 email: Set(format!("{}",email)),
-                about: Set(None),
                 avatar: Set("http://127.0.0.1:8080/api/v1/img/none_avatar.png".to_string()),
-                lvl:Set(1),
                 nickname: Set(format!("{}",username.clone())),
                 ..Default::default()
             };
