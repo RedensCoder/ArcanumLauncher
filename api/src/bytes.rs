@@ -18,7 +18,7 @@ pub async fn avatars_bytes(Path(name):Path<String>) -> Result<Response<Full<Byte
          .unwrap()
         )
       },
-      Error => return Err(String::from("К сожелению аватар с таким именем не найден"))
+      error => return Err(String::from("К сожелению аватар с таким именем не найден"))
    }
 }
 pub async fn upload_file(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State(db): State<DatabaseConnection>, mut bytes: Bytes) -> String { 
