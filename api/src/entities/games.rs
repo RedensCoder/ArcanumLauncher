@@ -3,21 +3,26 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "users")]
+#[sea_orm(table_name = "games")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
-    pub username: String,
-    #[sea_orm(column_type = "Text")]
-    pub password: String,
-    #[sea_orm(column_type = "Text")]
-    pub email: String,
+    pub gamename: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub desc: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub author: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub genre: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub about: Option<String>,
-    #[sea_orm(column_type = "Text")]
-    pub avatar: String,
-    pub lvl: i32,
-    #[sea_orm(column_type = "Text")]
-    pub nickname: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub avatar: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub trailer: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub screenshots: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub file: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

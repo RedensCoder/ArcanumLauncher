@@ -2,5 +2,6 @@
 
 pub mod prelude;
 
-pub mod user_library;
+pub mod games;
+pub mod purchase;
 pub mod users;

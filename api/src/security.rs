@@ -1,11 +1,11 @@
 use dotenvy_macro::dotenv;
 use dotenvy::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header, TokenData};
-use jsonwebtoken::{decode, DecodingKey, Validation, errors::ErrorKind};
+use jsonwebtoken::{decode, DecodingKey, Validation};
 use sea_orm::{QueryFilter, ColumnTrait, EntityTrait, DatabaseConnection};
 use serde::{Serialize, Deserialize};
 use crate::user::{UserAuth, User};
-use crate::entities::users;
+use crate::entities::users::{self};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
@@ -48,9 +48,10 @@ impl AuthReg {
 pub struct Claims{
     pub user: UserAuth,
     pub exp: i64
+    
 }
 
-pub(crate) fn create_token(body:&AuthReg) -> Result<String, String> {
+pub(crate)async fn create_token(body:&AuthReg, lvl:&i32) -> Result<String, String> {
     let exp = chrono::Utc::now() + chrono::Duration::weeks(1);
     let user = body.to_user_auth();
     let my_claims = Claims {
@@ -66,16 +67,16 @@ pub(crate) fn create_token(body:&AuthReg) -> Result<String, String> {
     };
     Ok(token)
 }
-pub async fn verify(token: &str, db: DatabaseConnection) -> Option<TokenData<Claims>> {
+pub async fn verify(token: &str, db: &DatabaseConnection) -> Option<TokenData<Claims>> {
     dotenv().ok();
     let token_data = decode::<Claims>(token, &DecodingKey::from_secret(dotenv!("SECRET").as_ref()), &Validation::default()).unwrap();
 
     let now: i64 = chrono::Utc::now().timestamp();
     if token_data.claims.exp > now {
         let user = users::Entity::find()
-        .filter(users::Column::Username.eq(format!("{:?}", md5::compute(token_data.claims.user.username.clone()))))
+        .filter(users::Column::Username.eq(token_data.claims.user.username.clone()))
         .filter(users::Column::Password.eq(format!("{:?}", md5::compute(token_data.claims.user.password.clone()))))
-        .one(&db)
+        .one(db)
         .await.unwrap();
 
         match user {
