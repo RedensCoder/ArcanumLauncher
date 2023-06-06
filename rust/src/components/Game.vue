@@ -67,8 +67,6 @@
         padding: 30px;
         text-align: center;
         font-family: 'Russo One';
-        font-style: normal;
-        font-weight: 400;
         font-size: 64px;
         line-height: 77px;
         color: #FFFFFF;
@@ -95,8 +93,6 @@
         margin-left: 20px;
         margin-top: 20px;
         font-family: 'Russo One';
-        font-style: normal;
-        font-weight: 400;
         font-size: 24px;
         line-height: 29px;
         color: #FFFFFF;
@@ -106,8 +102,6 @@
         margin-top: 14px; 
         padding: 10px 20px 5px 20px;
         font-family: 'Russo One';
-        font-style: normal;
-        font-weight: 400;
         font-size: 24px;
         line-height: 29px;
         color: #17B978;
@@ -116,8 +110,6 @@
     .genre{
         padding: 0 20px;
         font-family: 'Russo One';
-        font-style: normal;
-        font-weight: 400;
         font-size: 24px;
         line-height: 29px;
         color: #17B978;

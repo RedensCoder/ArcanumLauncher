@@ -1,7 +1,7 @@
 <template>
         <aside class="aside"> 
             <div class="flex">
-                <div class="profile">
+                <div @click="router.push('/profile')" class="profile">
                         <img :src="avatar" alt="no avatar" class="avatar">
                         <p class="nickname">{{ username }}</p>
                         <p class="lvl">{{ lvl }}</p>
@@ -25,7 +25,7 @@
                         </div>                
                 </div>
             </div>
-            <router-link to="/" class="nb_text">ARCANUM LAUNCHER</router-link>
+            <router-link to="/" class="nb_text">ARCANUM<br>LAUNCHER</router-link>
         </aside>
 </template>
 
@@ -81,6 +81,7 @@
         max-width: 100px;
         max-height: 100px;
         border-radius: 100px;
+     
     }
 
     .nickname {

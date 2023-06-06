@@ -30,10 +30,11 @@ async fn main(){
     //INIT
     let users_sql = fs::read_to_string("database/users.sql").unwrap();
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, users_sql)).await.unwrap();
-    let purchase_sql = fs::read_to_string("database/purchase.sql").unwrap();
-    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, purchase_sql)).await.unwrap();
     let games_sql = fs::read_to_string("database/games.sql").unwrap();
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, games_sql)).await.unwrap();
+    let purchase_sql = fs::read_to_string("database/purchase.sql").unwrap();
+    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, purchase_sql)).await.unwrap();
+
 
     let cors: CorsLayer = CorsLayer::new()
         .allow_methods(Any)
