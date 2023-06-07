@@ -75,6 +75,7 @@
         display: flex;
         align-items: center;
         margin-top: 25px;
+        cursor: pointer;
     }
 
     .avatar {
