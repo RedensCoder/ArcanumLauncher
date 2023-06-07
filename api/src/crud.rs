@@ -120,23 +120,37 @@ pub struct UserTime{
 //   "gamename":"naruto"
 // }
 pub async fn add_purcesh(State(db): State<DatabaseConnection>, Json(body): Json<Purchase>)-> String{
-    let user = users::Entity::find_by_id(body.username)
-    .one(&db)
-    .await.unwrap();
+    let user = users::Entity::find_by_id(body.username.clone())
+        .one(&db)
+        .await.unwrap();
+
     let game = games::Entity::find_by_id(body.gamename)
-    .one(&db)
-    .await.unwrap();
+        .one(&db)
+        .await.unwrap();
+
+    let purchases = purchase::Entity::find()
+        .filter(purchase::Column::Username.eq(body.username))
+        .one(&db)
+        .await.unwrap();
+
     match user {
         Some(user) => {
                 match game {
                     Some(game) => {
-                        let new_purchase = purchase::ActiveModel {
-                                        username:Set(user.username),
-                                        game:Set(game.gamename),
-                                        ..Default::default()
-                                    };
-                                    new_purchase.insert(&db.clone()).await.unwrap();
-                                    return String::from("Вы успешно совершили покупку!");
+                        match purchases {
+                            Some(_) => {
+                                return String::from("Такая игра уже приобретена!");
+                            },
+                            None => {
+                                let new_purchase = purchase::ActiveModel {
+                                    username:Set(user.username),
+                                    game:Set(game.gamename),
+                                    ..Default::default()
+                                };
+                                new_purchase.insert(&db.clone()).await.unwrap();
+                                return String::from("Вы успешно совершили покупку!");
+                            }
+                        }
                     },
                     None => {
                         return String::from("Возможно возникла ошибка, пока мы не владеем такой игрой попробуйте с ново");
@@ -158,18 +172,19 @@ pub async fn add_purcesh(State(db): State<DatabaseConnection>, Json(body): Json<
 //   }
 pub async fn add_playtime(State(db): State<DatabaseConnection>, Json(body): Json<UserTime>)-> String{
     let entries = purchase::Entity::find()
-    .filter(purchase::Column::Username.eq(body.username))
-    .filter(purchase::Column::Game.eq( body.gamename))
-    .one(&db)
-    .await.unwrap();
-match entries {
-    Some(entires) => {
-        let mut conv : purchase::ActiveModel = entires.clone().into(); 
-        conv.hours = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(entires.clone().hours).unwrap()+ body.playtime);
-        conv.update(&db).await.unwrap();
-        String::from("Наигранное время успешно было внесена в базу данных")
+        .filter(purchase::Column::Username.eq(body.username))
+        .filter(purchase::Column::Game.eq( body.gamename))
+        .one(&db)
+        .await.unwrap();
 
-    },
-    None => {String::from("Возможно возникла ошибка, пользователь небыл найден попробуйте с ново")},
-}
+    match entries {
+        Some(entires) => {
+            let mut conv : purchase::ActiveModel = entires.clone().into(); 
+            conv.hours = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(entires.clone().hours).unwrap()+ body.playtime);
+            conv.update(&db).await.unwrap();
+            String::from("Наигранное время успешно было внесена в базу данных")
+
+        },
+        None => {String::from("Возможно возникла ошибка, пользователь небыл найден попробуйте с ново")},
+    }
 }
