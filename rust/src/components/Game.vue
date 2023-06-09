@@ -88,8 +88,6 @@
         max-width: 900px;
     }
 
-    
-
     .ava{
         width: 95%;
     }

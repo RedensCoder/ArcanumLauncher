@@ -6,6 +6,7 @@ import Lib from "../components/Lib.vue";
 import Store from "../components/Mag.vue";
 import Profile from "../components/Profile.vue";
 import Game from "../components/Game.vue";
+import Changes from "../components/Changes.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,7 +17,7 @@ const router = createRouter({
     { path: '/lib', component: Lib },
     { path: '/Store', component: Store },
     { path: '/Profile', component: Profile },
-    { path: '/Game', component: Game }
+    { path: '/Changes', component: Changes }
   ]
 })
 
