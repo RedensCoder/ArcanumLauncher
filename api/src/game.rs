@@ -1,8 +1,8 @@
-use axum::{extract::{Path, State}, Json};
+use axum::{extract::{Path, State}, Json, TypedHeader, headers::{Authorization, authorization::Bearer}};
 use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter, ColumnTrait};
 use serde::{Serialize, Deserialize};
 
-use crate::entities::games;
+use crate::{entities::{games, purchase}, security::verify};
 
 #[derive(Serialize, Deserialize)]
 pub struct Game {
@@ -15,6 +15,15 @@ pub struct Game {
     pub trailer: String,
     pub screenshots: String,
     pub file: String,
+    pub price: i32
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Purchase {
+    pub username: String,
+    pub game: String,
+    pub hours: f32,
+    pub id_purchase: i64,
 }
 
 pub async fn get_game_by_id(State(db): State<DatabaseConnection>, Path(id): Path<String>) -> Json<Option<serde_json::Value>> {
@@ -35,8 +44,9 @@ pub async fn get_game_by_id(State(db): State<DatabaseConnection>, Path(id): Path
                 about: game.about.unwrap().unwrap(),
                 avatar: game.avatar.unwrap().unwrap(),
                 trailer: game.trailer.unwrap().unwrap(),
-                screenshots: game.screenshots.unwrap().unwrap(),
-                file: game.file.unwrap().unwrap()
+                screenshots: game.screen.unwrap().unwrap(),
+                file: game.file.unwrap().unwrap(),
+                price: game.price.unwrap().unwrap()
             };
 
             return Json(Some(serde_json::to_value(new_game).unwrap()));
@@ -63,12 +73,42 @@ pub async fn get_all(State(db): State<DatabaseConnection>) -> Json<Vec<Game>> {
                 about: game.about.unwrap().unwrap(),
                 avatar: game.avatar.unwrap().unwrap(),
                 trailer: game.trailer.unwrap().unwrap(),
-                screenshots: game.screenshots.unwrap().unwrap(),
-                file: game.file.unwrap().unwrap()
+                screenshots: game.screen.unwrap().unwrap(),
+                file: game.file.unwrap().unwrap(),
+                price: game.price.unwrap().unwrap()
             };
 
             game_arr.push(new_game);
     }
 
     return Json(game_arr);
+}
+
+pub async fn get_purchase_by_username(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State(db): State<DatabaseConnection>, Path(name): Path<String>) -> Json<Vec<Purchase>> {
+    let mut game_arr: Vec<Purchase> = vec![];
+   
+    match verify(auth.token(), &db).await {
+        Some(_) => {
+            let games = purchase::Entity::find()
+                .filter(purchase::Column::Username.eq(name))
+                .all(&db)
+                .await.unwrap();
+
+            for el in games {
+                let game: purchase::ActiveModel = el.into();
+
+                let new_game: Purchase = Purchase {
+                    username: game.username.unwrap(),
+                    game: game.game.unwrap(),
+                    hours: game.hours.unwrap(),
+                    id_purchase: game.id_purchase.unwrap()
+                };
+
+                game_arr.push(new_game);
+            }
+
+            return Json(game_arr);
+        },
+        None => Json(game_arr)
+    }
 }

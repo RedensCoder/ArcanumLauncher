@@ -1,9 +1,9 @@
 
-use axum::{extract::State, Json};
+use axum::{extract::State, Json, TypedHeader, headers::{Authorization, authorization::Bearer}};
 use sea_orm::{DatabaseConnection, ActiveModelTrait, EntityTrait, Set, ModelTrait, QueryFilter, ColumnTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::{entities::{users::{self, Entity}, purchase::{self}, games}, user::{UserAuth}};
+use crate::{entities::{users::{self, Entity}, purchase::{self}, games}, user::{UserAuth}, security::verify};
 //////////////////////////////////////////////CRUD FOR users.rs
 #[derive(Debug,Clone, Serialize, Deserialize)]
 pub enum Atributs {
@@ -63,31 +63,37 @@ impl From<Atributs> for UpdateRequest {
 //         "password": "9999" //здесь password сам по себе указывает тип атрибута поэтому не нужно дописать еще и поле с типом как в функции auth или рег
 //     }
 // }
-pub async fn update(State(db): State<DatabaseConnection>, Json(body): Json<UpdateRequest>){
-    let user = users::Entity::find_by_id(&body.username)
-        .one(&db)
-        .await
-        .unwrap();
-    let mut user: users::ActiveModel = user.unwrap().into();
-    match &body.atribut {
-        Atributs::Nickname(nickname) => {
-            user.nickname = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(nickname).unwrap().to_string());
-        }
-        Atributs::Password(password) => {
-            user.password = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(password).unwrap().to_string());
-        }
-        Atributs::Email(email) => {
-            user.email = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(email).unwrap().to_string());
-        }
-        Atributs::About(about) => {
-            user.about = sea_orm::ActiveValue::Set(Some(sea_orm::ActiveValue::Unchanged(about).unwrap().to_string()));
-        }
-        Atributs::Lvl(lvl) => {
-            user.lvl = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Set(*lvl as i32 ).unwrap());
-        }
+pub async fn update(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State(db): State<DatabaseConnection>, Json(body): Json<UpdateRequest>){
+    match verify(auth.token(), &db).await {
+        Some(_) => {
+            let user = users::Entity::find_by_id(&body.username)
+                .one(&db)
+                .await
+                .unwrap();
+            let mut user: users::ActiveModel = user.unwrap().into();
+            match &body.atribut {
+                Atributs::Nickname(nickname) => {
+                    user.nickname = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(nickname).unwrap().to_string());
+                }
+                Atributs::Password(password) => {
+                    user.password = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(password).unwrap().to_string());
+                }
+                Atributs::Email(email) => {
+                    user.email = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Unchanged(email).unwrap().to_string());
+                }
+                Atributs::About(about) => {
+                    user.about = sea_orm::ActiveValue::Set(Some(sea_orm::ActiveValue::Unchanged(about).unwrap().to_string()));
+                }
+                Atributs::Lvl(lvl) => {
+                    user.lvl = sea_orm::ActiveValue::Set(sea_orm::ActiveValue::Set(*lvl as i32 ).unwrap());
+                }
+            }
+            
+            user.update(&db).await.unwrap();
+        },
+        None => {}
     }
     
-    user.update(&db).await.unwrap();
     
 }
 pub async fn delete_by_auth_json(State(db): State<DatabaseConnection>, Json(body): Json<UserAuth>){
@@ -119,48 +125,54 @@ pub struct UserTime{
 //   "password":"popricol",
 //   "gamename":"naruto"
 // }
-pub async fn add_purcesh(State(db): State<DatabaseConnection>, Json(body): Json<Purchase>)-> String{
-    let user = users::Entity::find_by_id(body.username.clone())
-        .one(&db)
-        .await.unwrap();
+pub async fn add_purcesh(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State(db): State<DatabaseConnection>, Json(body): Json<Purchase>)-> String{
+    match verify(auth.token(), &db).await {
+        Some(_) => {
+            let user = users::Entity::find_by_id(body.username.clone())
+                .one(&db)
+                .await.unwrap();
 
-    let game = games::Entity::find_by_id(body.gamename)
-        .one(&db)
-        .await.unwrap();
+            let game = games::Entity::find_by_id(body.gamename)
+                .one(&db)
+                .await.unwrap();
 
-    let purchases = purchase::Entity::find()
-        .filter(purchase::Column::Username.eq(body.username))
-        .one(&db)
-        .await.unwrap();
+            let purchases = purchase::Entity::find()
+                .filter(purchase::Column::Username.eq(body.username))
+                .one(&db)
+                .await.unwrap();
 
-    match user {
-        Some(user) => {
-                match game {
-                    Some(game) => {
-                        match purchases {
-                            Some(_) => {
-                                return String::from("Такая игра уже приобретена!");
+            match user {
+                Some(user) => {
+                        match game {
+                            Some(game) => {
+                                match purchases {
+                                    Some(_) => {
+                                        return String::from("Такая игра уже приобретена!");
+                                    },
+                                    None => {
+                                        let new_purchase = purchase::ActiveModel {
+                                            username:Set(user.username),
+                                            game:Set(game.gamename),
+                                            ..Default::default()
+                                        };
+                                        new_purchase.insert(&db.clone()).await.unwrap();
+                                        return String::from("Вы успешно совершили покупку!");
+                                    }
+                                }
                             },
                             None => {
-                                let new_purchase = purchase::ActiveModel {
-                                    username:Set(user.username),
-                                    game:Set(game.gamename),
-                                    ..Default::default()
-                                };
-                                new_purchase.insert(&db.clone()).await.unwrap();
-                                return String::from("Вы успешно совершили покупку!");
+                                return String::from("Возможно возникла ошибка, пока мы не владеем такой игрой попробуйте с ново");
                             }
                         }
-                    },
-                    None => {
-                        return String::from("Возможно возникла ошибка, пока мы не владеем такой игрой попробуйте с ново");
-                    }
-                }
+                },
+                None => {
+                    return String::from("Возможно возникла ошибка, пользователь небыл найден попробуйте с ново");
+            }
+            }
         },
-        None => {
-            return String::from("Возможно возникла ошибка, пользователь небыл найден попробуйте с ново");
+        None => String::from("Null")
     }
-    }
+    
 
 }
 //////счетчик часов в игре

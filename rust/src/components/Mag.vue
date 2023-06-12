@@ -12,8 +12,8 @@
                     <div class="info">
                         <router-link :to="g.gamename" class="nameGame">{{ g.gamename }}</router-link>
                         <div class="prices">
-                            <s class="price">540 Руб</s>
-                            <p class="orig_price">249 Руб</p>
+                            <s class="price">{{ Math.floor(g.price * 1.15) }} Руб</s>
+                            <p class="orig_price">{{ g.price }} Руб</p>
                         </div>
                     </div>
                 </div>

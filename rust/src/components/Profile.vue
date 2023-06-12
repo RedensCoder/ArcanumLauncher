@@ -17,11 +17,11 @@
             </div>  
             <router-link class="change" to="/profile/edit">Изменить</router-link>
             <div class="games">
-                <div class="product">
-                    <img src="https://mykaleidoscope.ru/x/uploads/posts/2022-09/1663362480_16-mykaleidoscope-ru-p-gon-v-gneve-vkontakte-17.jpg" alt="not img" class="img">
+                <div class="product" v-for="p in purchase">
+                    <img :src="'http://127.0.0.1:8080/api/v1/gameAvatar/' + p.game" alt="not img" class="img">
                     <div class="info">
-                        <p class="name_game">NameGame</p>
-                        <router-link to="/" class="time_game">1234 ч</router-link>   
+                        <p class="name_game">{{ p.game }}</p>
+                        <router-link :to="p.game" class="time_game">{{ p.hours }} ч</router-link>   
                     </div>
                 </div>
             </div>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-    import {ref, onMounted} from "vue";
+    import {ref, onMounted, reactive} from "vue";
     import Aside from './Aside.vue';
     import axios from 'axios';
     import jwtDecode from "jwt-decode";
@@ -39,6 +39,8 @@
     const lvl = ref(0);
     const about = ref("");
     const avatar = ref("");
+
+    const purchase = reactive([])
 
     onMounted(async () => {
         if (localStorage.getItem("token") == null) {
@@ -55,6 +57,15 @@
         lvl.value = res.data.lvl;
         about.value = res.data.about;
         avatar.value = res.data.avatar;
+
+        let res_lib = await axios.get(`http://127.0.0.1:8080/api/v1/getPurchase/${jwtDecode(localStorage.getItem("token")).user.username}`,
+        {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token")
+            }
+        })
+
+        purchase.push(...res_lib.data)
     });
 </script>
 

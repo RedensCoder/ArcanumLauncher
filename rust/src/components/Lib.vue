@@ -4,11 +4,11 @@
             <div class="lib__lib">
                 <p class="label">Библиотека</p>
                 <div class="game">
-                    <div class="product" v-for="g in games">
-                        <img :src="g.avatar" alt="not img" class="img">
+                    <div class="product" v-for="p in purchase">
+                        <img :src="'http://127.0.0.1:8080/api/v1/gameAvatar/' + p.game" alt="not img" class="img">
                             <div class="info">
-                                <p class="name_game">{{ g.gamename }}</p>
-                                <router-link :to="g.gamename" class="play">Играть</router-link>   
+                                <p class="name_game">{{ p.game }}</p>
+                                <button class="play">Играть</button>   
                             </div>
                     </div>
                 </div>
@@ -20,17 +20,22 @@
     import AsideVue from './Aside.vue';
     import { onMounted, reactive } from 'vue';
     import axios from 'axios';
+    import jwtDecode from 'jwt-decode';
 
-    let games = reactive([])
+    let purchase = reactive([])
 
     onMounted(async () => {
         if (localStorage.getItem("token") === null) {
             router.push("/");
         }
 
-        let res = await axios.get("http://127.0.0.1:8080/api/v1/getAllGames")
+        let res = await axios.get(`http://127.0.0.1:8080/api/v1/getPurchase/${jwtDecode(localStorage.getItem("token")).user.username}`,{
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token")
+            }
+        })
 
-        games.push(...res.data)
+        purchase.push(...res.data)
     })
 </script>
 

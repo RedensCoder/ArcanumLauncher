@@ -21,9 +21,9 @@ pub struct Model {
     pub trailer: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub file: Option<String>,
+    pub price: Option<i32>,
     #[sea_orm(column_type = "Text", nullable)]
     pub screen: Option<String>,
-    pub price: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

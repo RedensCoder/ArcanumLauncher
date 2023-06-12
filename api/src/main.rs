@@ -50,15 +50,19 @@ async fn main(){
         .route(&route("reg"), post(registration))
         .route(&route("auth"), post(auth))
         .route(&route("img/:name"), get(avatars_bytes))
+        .route(&route("gameAvatar/:name"), get(bytes::game_avatar))
+        .route(&route("gameTrailer/:name"), get(bytes::game_trailer))
+        .route(&route("gameScreen/:name"), get(bytes::game_screen))
         .route(&route("upload"), post(bytes::upload_file))
         .route(&route("getUserByUsername/:username"), get(get_user_by_username))
-        .route(&route("deleteByAuthJson"), post(delete_by_auth_json))
+        //.route(&route("deleteByAuthJson"), post(delete_by_auth_json)) НЕУВЕРЕН ЧТО УДАЛЕНИЕ НАМ НАДО
         .route(&route("updateAtribut"), post(update))
         .route(&route("addPurchase"), post(add_purcesh))
         .route(&route("addPlayTime"), post(add_playtime))
         //Game
         .route(&route("getGameByName/:id"), get(game::get_game_by_id))
         .route(&route("getAllGames"), get(game::get_all))
+        .route(&route("getPurchase/:name"), get(game::get_purchase_by_username))
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db)
         .layer(cors);

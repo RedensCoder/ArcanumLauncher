@@ -8,10 +8,7 @@
                     <div class="img">
                         <Trailer :trailer="game.trailer" />
                         <div class="img_dop">
-                            <img src="https://adonius.club/uploads/posts/2022-01/1643632815_66-adonius-club-p-fon-dbd-75.jpg" alt="" class="dop">
-                            <img src="https://phonoteka.org/uploads/posts/2021-04/1618487336_44-p-dbd-fon-47.jpg" alt="" class="dop">
-                            <img src="https://sun9-49.userapi.com/impg/jklZ0XItpXReAu3yH4CWLeVggpGIKyMMqoKvcg/LivFBi9rWQ8.jpg?size=1280x720&quality=95&sign=0142e7c00a8e07917568f99729e48c40&c_uniq_tag=CVarfLe4S2zzGO4_w5fDVoQERIf3CF1FXi8xvA6pmVc&type=album" alt="" class="dop">
-                            <img src="https://i.ytimg.com/vi/5sZp-6E8Ruc/maxresdefault.jpg" alt="" class="dop">
+                            <img :src="game.screenshots" alt="" class="dop">
                         </div>
                     </div>
                     <div class="info">
@@ -22,7 +19,8 @@
                     </div>
                 </div>
                         <div class="buy_game">
-                            <router-link class="buy" to="/">Купить</router-link>
+                            <button v-if="haveGame" @click="buy" class="buy">Купить</button>
+                            <router-link v-else to="/lib" class="buy">В библиотеку</router-link>
                             <div class="prices">
                                 <s class="price">540 Руб</s>
                                 <p class="orig_price">249 Руб</p>
@@ -45,13 +43,42 @@
     import {ref, onMounted} from "vue";
     import axios from 'axios';
     import router from '../router';
+    import jwtDecode from 'jwt-decode';
 
     let game = ref({})
+    const haveGame = ref(true);
+
+    const buy = async () => {
+        await axios.post("http://127.0.0.1:8080/api/v1/addPurchase", {
+            username: jwtDecode(localStorage.getItem("token")).user.username,
+            password: jwtDecode(localStorage.getItem("token")).user.password,
+            gamename: game.value.gamename,
+        }, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token")
+            }
+        })
+
+        router.push("/lib")
+    }
 
     onMounted(async () => {
         let res = await axios.get(`http://127.0.0.1:8080/api/v1/getGameByName/${router.currentRoute.value.params.game}`)
 
         game.value = res.data
+
+        let resLib = await axios.get(`http://127.0.0.1:8080/api/v1/getPurchase/${jwtDecode(localStorage.getItem("token")).user.username}` ,{
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token")
+            }}
+        )
+        console.log(resLib.data);
+        resLib.data.forEach(el => {
+            
+            if (el.game === game.value.gamename) {
+                haveGame.value = false;
+            }
+        })
     })
 </script>
 
