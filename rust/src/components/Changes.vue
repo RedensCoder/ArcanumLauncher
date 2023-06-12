@@ -4,16 +4,17 @@
         <div class="content">
             <div class="profile">
                 <div class="change_ava">
-                    <img :src="avatar" alt="no ava" class="ava">
-                    <input type="file" id="button" class="input_hidden">
-                    <button class="change" for="id" @click="chooseFiles()">Загрузить</button>
+                    <img v-if="img_ava === ''" :src="avatar" alt="no ava" class="ava">
+                    <img v-else :src="img_ava" alt="no ava" class="ava">
+                    <input @change="avaChange" type="file" accept="image/png, image/jpg, image/jpeg" id="button" class="input_hidden">
+                    <label class="change" for="button">Загрузить</label>
                 </div>
                 <div class="change_main">
                     <p class="nickname">{{ username }}</p>
-                    <input type="text" placeholder="Имя пользователя" required />
-                    <input type="text" placeholder="Пароль" required />
-                    <input type="text" placeholder="О себе" required />
-                    <router-link to="/signin" class="change">Изменить</router-link>
+                    <input v-model="fUsername" type="text" placeholder="Имя пользователя" required />
+                    <input v-model="pass" type="password" placeholder="Пароль" required />
+                    <input v-model="about" type="text" placeholder="О себе" required />
+                    <button @click="change" class="change">Изменить</button>
                 </div>
             </div>
         </div>
@@ -25,11 +26,76 @@
     import Aside from './Aside.vue';
     import axios from 'axios';
     import jwtDecode from "jwt-decode";
+import router from '../router';
 
     const username = ref("");
-    const lvl = ref(0);
-    const about = ref("");
     const avatar = ref("");
+
+    const fUsername = ref("");
+    const about = ref("");
+    const pass = ref("");
+
+    const img = ref("")
+    const img_ava = ref("");
+
+    const change = async () => {
+        if (img.value !== "") {
+            const file = new FormData();
+            file.append("avatar", img.value)
+            
+            await axios.post("http://127.0.0.1:8080/api/v1/upload", file, {
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Content-Type": "multipart/form-data"
+                }
+            })
+        }
+
+        if (fUsername === "") {
+            await axios.post("http://127.0.0.1:8080/api/v1/updateAtribut", {
+                username: jwtDecode(localStorage.getItem("token")).user.username,
+                password: pass.value,
+                atribut: {
+                    about: about.value
+                }
+            }, {
+                headers: {
+                    "Authorization": localStorage.getItem("token")
+                }
+            })
+        } else {
+            await axios.post("http://127.0.0.1:8080/api/v1/updateAtribut", {
+                username: jwtDecode(localStorage.getItem("token")).user.username,
+                password: pass.value,
+                atribut: {
+                    about: about.value
+                }
+            }, {
+                headers: {
+                    "Authorization": localStorage.getItem("token")
+                }
+            })
+
+            await axios.post("http://127.0.0.1:8080/api/v1/updateAtribut", {
+                username: jwtDecode(localStorage.getItem("token")).user.username,
+                password: pass.value,
+                atribut: {
+                    nickname: fUsername.value
+                }
+            }, {
+                headers: {
+                    "Authorization": localStorage.getItem("token")
+                }
+            })
+        }
+
+        router.push("/profile")
+    }
+
+    const avaChange = (e) => {
+        img.value = e.target.files[0];
+        img_ava.value = URL.createObjectURL(img.value);
+    }
 
     onMounted(async () => {
         if (localStorage.getItem("token") == null) {
@@ -42,17 +108,9 @@
             }
         });
 
-        username.value = res.data.username;
-        lvl.value = res.data.lvl;
-        about.value = res.data.about;
+        username.value = res.data.nickname;
         avatar.value = res.data.avatar;
     });
-
-    const chooseFiles = async () => {
-        let fileInputElement = this.$refs.file;
-        fileInputElement.click();        
-    }
-    
 </script>
 
 <style scoped>
@@ -85,7 +143,6 @@
     }
 
     .change_main{
-        margin-top: 150px;
         width: 100%;
         display:flex;
         flex-direction: column;
@@ -122,9 +179,8 @@
     }
 
     .change {
-        margin-top: 320px;
+        margin: 30px 0;
         padding: 7px 132px;
-        position: absolute;
         font-family: 'Russo One';
         font-style: normal;
         font-weight: 400;
@@ -134,6 +190,7 @@
         color: #FFFFFF;
         background: #17B978;
         border-radius: 15px;
+        cursor: pointer;
     }
 
 </style>

@@ -12,16 +12,16 @@
                 <router-link to="/" class="play">Играть</router-link>
             </div>
             <div class="products">
-                <div class="product">
+                <div class="product" v-for="g in games">
                     <div class="discount__div">
                         <p class="discount">-15%</p>
                     </div>
-                    <img src="https://mykaleidoscope.ru/x/uploads/posts/2022-09/1663362480_16-mykaleidoscope-ru-p-gon-v-gneve-vkontakte-17.jpg" alt="not img" class="img">
+                    <img :src="g.avatar" alt="not img" class="img">
                     <div class="info">
-                        <router-link to="/" class="nameGame">NameGame</router-link>
+                        <router-link to="/" class="nameGame">{{ g.gamename }}</router-link>
                         <div class="prices">
-                            <s class="price">540 Руб</s>
-                            <p class="orig_price">249 Руб</p>
+                            <s class="price">{{ Math.floor(449 * 1.15) }} Руб</s>
+                            <p class="orig_price">{{ 449 }} Руб</p>
                         </div>
                     </div>
                 </div>
@@ -35,13 +35,20 @@
 </template>
     
 <script setup>
-    import { onMounted } from 'vue';
+    import { onMounted, reactive } from 'vue';
     import router from '../router';
+    import axios from 'axios';
 
-    onMounted(() => {
+    let games = reactive([])
+
+    onMounted(async () => {
         if (localStorage.getItem("token") !== null) {
             router.push("/lib");
         }
+
+        let res = await axios.get("http://127.0.0.1:8080/api/v1/getAllGames")
+
+        games.push(...res.data)
     })
 </script>
 

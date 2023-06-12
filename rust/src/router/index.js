@@ -17,7 +17,8 @@ const router = createRouter({
     { path: '/lib', component: Lib },
     { path: '/Store', component: Store },
     { path: '/Profile', component: Profile },
-    { path: '/Changes', component: Changes }
+    { path: '/Profile/Edit', component: Changes },
+    { path: '/:game', component: Game }
   ]
 })
 

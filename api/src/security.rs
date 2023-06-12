@@ -81,15 +81,12 @@ pub async fn verify(token: &str, db: &DatabaseConnection) -> Option<TokenData<Cl
 
         match user {
             Some(_) => {
-                print!("Tochno some vernul");
                 return Some(token_data);
             },
             None => {
-                println!("USera net");
                 return None;
             }
         }
     }
-    println!("constructia nahui posla");
     None
 }

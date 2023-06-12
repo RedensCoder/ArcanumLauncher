@@ -18,6 +18,7 @@ pub struct User {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FullUser {
     pub username: String,
+    pub nickname: String,
     pub password: String,
     pub email: String,
     pub about: String,
@@ -120,7 +121,7 @@ pub async fn get_user_by_username(TypedHeader(auth): TypedHeader<Authorization<B
 
             let user: users::ActiveModel = user.unwrap().into();
 
-            let new_user: FullUser = FullUser { username: user.username.unwrap(), password: user.password.unwrap(), email: user.email.unwrap(), about: user.about.unwrap().unwrap(), avatar: user.avatar.unwrap(), lvl: user.lvl.unwrap() };
+            let new_user: FullUser = FullUser { username: user.username.unwrap(), nickname: user.nickname.unwrap(), password: user.password.unwrap(), email: user.email.unwrap(), about: user.about.unwrap().unwrap(), avatar: user.avatar.unwrap(), lvl: user.lvl.unwrap() };
 
             return Json(Some(serde_json::to_value(new_user).unwrap()));
         },

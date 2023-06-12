@@ -4,13 +4,13 @@
         <div class="store">
             <p class="label">Магазин</p>
             <div class="games">
-                <div class="game">
+                <div class="game" v-for="g in games">
                     <div class="discount__div">
                         <p class="discount">-15%</p>
                     </div>
-                    <img src="https://mykaleidoscope.ru/x/uploads/posts/2022-09/1663362480_16-mykaleidoscope-ru-p-gon-v-gneve-vkontakte-17.jpg" alt="not img" class="img">
+                    <img :src="g.avatar" alt="not img" class="img">
                     <div class="info">
-                        <router-link to="/" class="nameGame">NameGame</router-link>
+                        <router-link :to="g.gamename" class="nameGame">{{ g.gamename }}</router-link>
                         <div class="prices">
                             <s class="price">540 Руб</s>
                             <p class="orig_price">249 Руб</p>
@@ -24,6 +24,17 @@
 
 <script setup>
     import Aside from './Aside.vue';
+    import {reactive, onMounted} from "vue";
+    import axios from 'axios';
+
+    const games = reactive([])
+
+    onMounted(async () => {
+        let res = await axios.get("http://127.0.0.1:8080/api/v1/getAllGames")
+
+        games.push(...res.data)
+    })
+    
 </script>
 
 <style scoped>

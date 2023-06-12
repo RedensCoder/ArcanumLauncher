@@ -51,7 +51,7 @@
             }
         });
 
-        username.value = res.data.username;
+        username.value = res.data.nickname;
         lvl.value = res.data.lvl;
         about.value = res.data.about;
         avatar.value = res.data.avatar;

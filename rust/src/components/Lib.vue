@@ -4,11 +4,11 @@
             <div class="lib__lib">
                 <p class="label">Библиотека</p>
                 <div class="game">
-                    <div class="product">
-                        <img src="https://mykaleidoscope.ru/x/uploads/posts/2022-09/1663362480_16-mykaleidoscope-ru-p-gon-v-gneve-vkontakte-17.jpg" alt="not img" class="img">
+                    <div class="product" v-for="g in games">
+                        <img :src="g.avatar" alt="not img" class="img">
                             <div class="info">
-                                <p class="name_game">NameGame</p>
-                                <router-link to="/" class="play">Играть</router-link>   
+                                <p class="name_game">{{ g.gamename }}</p>
+                                <router-link :to="g.gamename" class="play">Играть</router-link>   
                             </div>
                     </div>
                 </div>
@@ -18,12 +18,19 @@
 
 <script setup>
     import AsideVue from './Aside.vue';
-    import { onMounted } from 'vue';
+    import { onMounted, reactive } from 'vue';
+    import axios from 'axios';
 
-    onMounted(() => {
+    let games = reactive([])
+
+    onMounted(async () => {
         if (localStorage.getItem("token") === null) {
             router.push("/");
         }
+
+        let res = await axios.get("http://127.0.0.1:8080/api/v1/getAllGames")
+
+        games.push(...res.data)
     })
 </script>
 

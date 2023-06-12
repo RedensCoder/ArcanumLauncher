@@ -51,7 +51,7 @@
             }
         });
 
-        username.value = res.data.username;
+        username.value = res.data.nickname;
         lvl.value = res.data.lvl;
         about.value = res.data.about;
         avatar.value = res.data.avatar;
@@ -69,6 +69,7 @@
         flex-direction: column;
         min-height: 100vh;
         max-height: 100vh;
+        min-width: 350px;
     }
 
     .profile {

@@ -2,11 +2,11 @@
     <div class="flex">
         <Aside />
         <div class="content">
-            <p class="game_n">Dead By Daylight</p>
+            <p class="game_n">{{ game.gamename }}</p>
             <div class="imgs">
                 <div class="game__info">
                     <div class="img">
-                        <Trailer />
+                        <Trailer :trailer="game.trailer" />
                         <div class="img_dop">
                             <img src="https://adonius.club/uploads/posts/2022-01/1643632815_66-adonius-club-p-fon-dbd-75.jpg" alt="" class="dop">
                             <img src="https://phonoteka.org/uploads/posts/2021-04/1618487336_44-p-dbd-fon-47.jpg" alt="" class="dop">
@@ -15,10 +15,10 @@
                         </div>
                     </div>
                     <div class="info">
-                        <img src="https://pic.rutubelist.ru/video/4f/d5/4fd5d725d4e53f564f0ff9021fab2040.jpg" alt="" class="ava">
-                        <p class="desc">Описание Описание Описание Описание Описание Описание Описание Описание Описание</p>
-                        <p class="author">Автор: <span class="color_wh">Papa</span></p>
-                        <p class="genre">Жанр: <span class="color_wh">Хоррор</span></p>
+                        <img :src="game.avatar" alt="" class="ava">
+                        <p class="desc">{{ game.about }}</p>
+                        <p class="author">Автор: <span class="color_wh">{{ game.author }}</span></p>
+                        <p class="genre">Жанр: <span class="color_wh">{{ game.genre }}</span></p>
                     </div>
                 </div>
                         <div class="buy_game">
@@ -32,7 +32,7 @@
                   <footer class="footer">
                         <p class="info_game">Об игре</p>
                         <hr class="hr">
-                        <p class="desc_foo">Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания Еще больше описания</p>
+                        <p class="desc_foo">{{ game.desc }}</p>
                   </footer>
             </div>        
     </div>
@@ -42,6 +42,17 @@
 <script setup>
     import Aside from './Aside.vue';
     import Trailer from "./VideoPlayer.vue";
+    import {ref, onMounted} from "vue";
+    import axios from 'axios';
+    import router from '../router';
+
+    let game = ref({})
+
+    onMounted(async () => {
+        let res = await axios.get(`http://127.0.0.1:8080/api/v1/getGameByName/${router.currentRoute.value.params.game}`)
+
+        game.value = res.data
+    })
 </script>
 
 <style scoped>

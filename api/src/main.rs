@@ -4,7 +4,10 @@ use bytes::avatars_bytes;
 use crud::{update, delete_by_auth_json, add_purcesh, add_playtime};
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
-use axum::{Router, routing::{post, get}};
+use axum::{Router, routing::{post, get}, http::{
+    header::{AUTHORIZATION, CONTENT_TYPE, ACCESS_CONTROL_ALLOW_CREDENTIALS},
+    HeaderValue, Method, StatusCode,
+}};
 use dotenvy_macro::dotenv;
 use tower_http::cors::{Any, CorsLayer};
 use user::{registration, auth, get_user_by_username};
@@ -14,6 +17,7 @@ mod security;
 mod user;
 mod bytes;
 mod crud;
+mod game;
 
 //Артём, опять подсматриваешь?)))
 //андрюх если ты смотришь то я сделал ток базуданных и вот эту sea-orm-cli а остольное тоже самое, я уже в четверг буду заниматся остальном 
@@ -38,9 +42,9 @@ async fn main(){
 
 
     let cors: CorsLayer = CorsLayer::new()
-        .allow_methods(Any)
-        .allow_headers(Any)
-        .allow_origin(Any);
+        .allow_credentials(true)
+        .allow_origin("http://localhost:1420".parse::<HeaderValue>().unwrap())
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCESS_CONTROL_ALLOW_CREDENTIALS]);
 
     let app = Router::new()
         .route(&route("reg"), post(registration))
@@ -52,6 +56,9 @@ async fn main(){
         .route(&route("updateAtribut"), post(update))
         .route(&route("addPurchase"), post(add_purcesh))
         .route(&route("addPlayTime"), post(add_playtime))
+        //Game
+        .route(&route("getGameByName/:id"), get(game::get_game_by_id))
+        .route(&route("getAllGames"), get(game::get_all))
         //здесь используется with_state который позволяет передать переменную всем маршрутом (это самая важная чась это твари заняла у меня 2 дня)
         .with_state(db)
         .layer(cors);
