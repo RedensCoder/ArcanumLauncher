@@ -70,6 +70,23 @@ pub async fn game_avatar(Path(name):Path<String>) -> Result<Response<Full<Bytes>
     }
  }
 
+ pub async fn game_file(Path(name):Path<String>) -> Result<Response<Full<Bytes>>, String>{
+    let file = fs::read(format!("data_bytes/games_file/{}.exe", name));
+ 
+    match file {
+       Ok(_) => {
+         Ok(
+         Response::builder()
+          .header("Content-Type", "application/octet-stream")
+          .header("Content-Disposition", format!("attachment; filename={name}.exe"))
+          .body(Full::from(file.unwrap()))
+          .unwrap()
+         )
+       },
+       error => return Err(String::from("К сожелению аватар с таким именем не найден"))
+    }
+ }
+
 pub async fn upload_file(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State(db): State<DatabaseConnection>, mut bytes: Bytes) -> String { 
     match verify(auth.token(), &db).await {
         Some(token) => {

@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS public.games
     about text COLLATE pg_catalog."default",
     avatar text COLLATE pg_catalog."default",
     trailer text COLLATE pg_catalog."default",
-    screenshots text COLLATE pg_catalog."default",
     file text COLLATE pg_catalog."default",
+    price integer,
+    screen text COLLATE pg_catalog."default",
     CONSTRAINT games_pkey PRIMARY KEY (gamename)
 );

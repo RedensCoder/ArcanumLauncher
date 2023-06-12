@@ -5,11 +5,7 @@
                 <p class="label">Библиотека</p>
                 <div class="game">
                     <div class="product" v-for="p in purchase">
-                        <img :src="'http://127.0.0.1:8080/api/v1/gameAvatar/' + p.game" alt="not img" class="img">
-                            <div class="info">
-                                <p class="name_game">{{ p.game }}</p>
-                                <button class="play">Играть</button>   
-                            </div>
+                        <lib_game :game="p" />
                     </div>
                 </div>
             </div>
@@ -18,9 +14,10 @@
 
 <script setup>
     import AsideVue from './Aside.vue';
+    import lib_game from './lib_game.vue';
     import { onMounted, reactive } from 'vue';
-    import axios from 'axios';
     import jwtDecode from 'jwt-decode';
+    import axios from 'axios';
 
     let purchase = reactive([])
 
@@ -55,20 +52,6 @@
         color: #FFFFFF;
     }
 
-    .play {
-        text-decoration: none;
-        background: #17B978;
-        font-family: 'Russo One';
-        font-style: normal;
-        font-weight: 400;
-        font-size: 24px;
-        line-height: 29px;
-        color: #FFFFFF;
-        padding: 2px 36px;
-        cursor: pointer;
-        border-radius: 10px;        
-    }
-
     .game {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -77,29 +60,5 @@
 
     .product {
         margin: 37px 20px 0px 20px;
-    }
-
-    .img {
-        width: 100%;
-    }
-
-    .info {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-    }
-
-    .name_game {
-        text-decoration: none;
-        font-family: 'Russo One';
-        font-style: normal;
-        font-weight: 400;
-        font-size: 24px;
-        line-height: 29px;
-        color: #FFFFFF;
-    }
-    
-    .lib__lib {
-        text-align: center;
     }
 </style>

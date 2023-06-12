@@ -111,9 +111,7 @@ pub(crate) async fn auth( State(db): State<DatabaseConnection>,Json(body): Json<
     
 }
 
-pub async fn get_user_by_username(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State(db): State<DatabaseConnection>, Path(username): Path<String>) -> Json<Option<serde_json::Value>> {
-    match verify(auth.token(), &db).await {
-        Some(_) => {
+pub async fn get_user_by_username(State(db): State<DatabaseConnection>, Path(username): Path<String>) -> Json<Option<serde_json::Value>> {
         let user = users::Entity::find()
                 .filter(users::Column::Username.eq(username))
                 .one(&db)
@@ -124,9 +122,4 @@ pub async fn get_user_by_username(TypedHeader(auth): TypedHeader<Authorization<B
             let new_user: FullUser = FullUser { username: user.username.unwrap(), nickname: user.nickname.unwrap(), password: user.password.unwrap(), email: user.email.unwrap(), about: user.about.unwrap().unwrap(), avatar: user.avatar.unwrap(), lvl: user.lvl.unwrap() };
 
             return Json(Some(serde_json::to_value(new_user).unwrap()));
-        },
-        None => Json(None)
-    }
-    
-    
 }

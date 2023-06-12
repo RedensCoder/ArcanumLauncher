@@ -39,7 +39,8 @@ async fn main(){
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, games_sql)).await.unwrap();
     let purchase_sql = fs::read_to_string("database/purchase.sql").unwrap();
     db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, purchase_sql)).await.unwrap();
-
+    let insert_sql = fs::read_to_string("database/insert.sql").unwrap();
+    db.execute(Statement::from_string(sea_orm::DatabaseBackend::Postgres, insert_sql)).await.unwrap();
 
     let cors: CorsLayer = CorsLayer::new()
         .allow_credentials(true)
@@ -53,6 +54,7 @@ async fn main(){
         .route(&route("gameAvatar/:name"), get(bytes::game_avatar))
         .route(&route("gameTrailer/:name"), get(bytes::game_trailer))
         .route(&route("gameScreen/:name"), get(bytes::game_screen))
+        .route(&route("game/:name"), get(bytes::game_file))
         .route(&route("upload"), post(bytes::upload_file))
         .route(&route("getUserByUsername/:username"), get(get_user_by_username))
         //.route(&route("deleteByAuthJson"), post(delete_by_auth_json)) НЕУВЕРЕН ЧТО УДАЛЕНИЕ НАМ НАДО
