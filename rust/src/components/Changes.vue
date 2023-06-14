@@ -45,7 +45,7 @@ import router from '../router';
             
             await axios.post("http://127.0.0.1:8080/api/v1/upload", file, {
                 headers: {
-                    "Authorization": localStorage.getItem("token"),
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
                     "Content-Type": "multipart/form-data"
                 }
             })
@@ -60,7 +60,7 @@ import router from '../router';
                 }
             }, {
                 headers: {
-                    "Authorization": localStorage.getItem("token")
+                    Authorization: "Bearer " + localStorage.getItem("token")
                 }
             })
         } else {
@@ -72,7 +72,7 @@ import router from '../router';
                 }
             }, {
                 headers: {
-                    "Authorization": localStorage.getItem("token")
+                    Authorization: "Bearer " + localStorage.getItem("token")
                 }
             })
 
@@ -84,12 +84,12 @@ import router from '../router';
                 }
             }, {
                 headers: {
-                    "Authorization": localStorage.getItem("token")
+                    Authorization: "Bearer " + localStorage.getItem("token")
                 }
             })
         }
 
-        router.push("/profile")
+        //router.push("/profile")
     }
 
     const avaChange = (e) => {

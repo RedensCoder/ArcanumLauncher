@@ -18,10 +18,10 @@
                     </div>
                     <img :src="g.avatar" alt="not img" class="img">
                     <div class="info">
-                        <router-link to="/" class="nameGame">{{ g.gamename }}</router-link>
+                        <router-link :to="g.gamename" class="nameGame">{{ g.gamename }}</router-link>
                         <div class="prices">
-                            <s class="price">{{ Math.floor(449 * 1.15) }} Руб</s>
-                            <p class="orig_price">{{ 449 }} Руб</p>
+                            <s class="price">{{ Math.floor(g.price * 1.15) }} Руб</s>
+                            <p class="orig_price">{{ g.price }} Руб</p>
                         </div>
                     </div>
                 </div>
@@ -202,7 +202,6 @@
         font-weight: 400;
         font-size: 24px;
         line-height: 28px;
-        text-decoration-line: line-through;
         color: #A6E3E9;
         margin-left: 5px;
     }

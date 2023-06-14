@@ -57,7 +57,7 @@ async fn main(){
         .route(&route("game/:name"), get(bytes::game_file))
         .route(&route("upload"), post(bytes::upload_file))
         .route(&route("getUserByUsername/:username"), get(get_user_by_username))
-        //.route(&route("deleteByAuthJson"), post(delete_by_auth_json)) НЕУВЕРЕН ЧТО УДАЛЕНИЕ НАМ НАДО
+        //.route(&route("deleteByAuthJson"), post(delete_by_auth_json)) НЕ УВЕРЕН ЧТО УДАЛЕНИЕ НАМ НАДО
         .route(&route("updateAtribut"), post(update))
         .route(&route("addPurchase"), post(add_purcesh))
         .route(&route("addPlayTime"), post(add_playtime))

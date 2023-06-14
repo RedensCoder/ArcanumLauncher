@@ -22,8 +22,8 @@
                             <button v-if="haveGame" @click="buy" class="buy">Купить</button>
                             <router-link v-else to="/lib" class="buy">В библиотеку</router-link>
                             <div class="prices">
-                                <s class="price">540 Руб</s>
-                                <p class="orig_price">249 Руб</p>
+                                <s class="price">{{ Math.floor(game.price * 1.15) }} Руб</s>
+                                <p class="orig_price">{{ game.price }} Руб</p>
                             </div>
                         </div>
                   </div>
