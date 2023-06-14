@@ -1,12 +1,12 @@
 use axum::Json;
-use axum::{headers::{authorization::Bearer, Authorization}, TypedHeader};
+
 use axum::extract::{Path, State};
 use dotenvy::dotenv;
 
 use serde::{Serialize, Deserialize};
 use sea_orm::{ActiveModelTrait, Set, DatabaseConnection, QueryFilter, ColumnTrait, EntityTrait};
 
-use crate::{entities::users, security::{AuthReg, create_token, verify}};
+use crate::{entities::users, security::{AuthReg, create_token}};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {

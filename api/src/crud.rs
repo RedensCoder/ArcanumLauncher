@@ -1,9 +1,9 @@
 
 use axum::{extract::State, Json, TypedHeader, headers::{Authorization, authorization::Bearer}};
-use sea_orm::{DatabaseConnection, ActiveModelTrait, EntityTrait, Set, ModelTrait, QueryFilter, ColumnTrait};
+use sea_orm::{DatabaseConnection, ActiveModelTrait, EntityTrait, Set, QueryFilter, ColumnTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::{entities::{users::{self, Entity}, purchase::{self}, games}, user::{UserAuth}, security::verify};
+use crate::{entities::{users::{self}, purchase::{self}, games}, security::verify};
 //////////////////////////////////////////////CRUD FOR users.rs
 #[derive(Debug,Clone, Serialize, Deserialize)]
 pub enum Atributs {
@@ -96,15 +96,15 @@ pub async fn update(TypedHeader(auth): TypedHeader<Authorization<Bearer>>, State
     
     
 }
-pub async fn delete_by_auth_json(State(db): State<DatabaseConnection>, Json(body): Json<UserAuth>){
-    let user = Entity::find_by_id(body.username)
-    .one(&db)
-    .await.unwrap();
+// pub async fn delete_by_auth_json(State(db): State<DatabaseConnection>, Json(body): Json<UserAuth>){
+//     let user = Entity::find_by_id(body.username)
+//     .one(&db)
+//     .await.unwrap();
     
-    user.unwrap().delete(&db).await.unwrap();
+//     user.unwrap().delete(&db).await.unwrap();
     
-    println!("мы нашли его спустя полгода и удалили");
-}
+//     println!("мы нашли его спустя полгода и удалили");
+// }
 ////////////////////////////////////////////////////CRUD FOR purchase.rs
 #[derive(Debug, Clone,Serialize, Deserialize)]
 pub struct Purchase{
