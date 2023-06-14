@@ -1,15 +1,15 @@
 #![allow(unused_variables)]
 use std::{fs};
 use bytes::avatars_bytes;
-use crud::{update, delete_by_auth_json, add_purcesh, add_playtime};
+use crud::{update, add_purcesh, add_playtime};
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, ConnectionTrait, Statement};
 use axum::{Router, routing::{post, get}, http::{
     header::{AUTHORIZATION, CONTENT_TYPE, ACCESS_CONTROL_ALLOW_CREDENTIALS},
-    HeaderValue, Method, StatusCode,
+    HeaderValue,
 }};
 use dotenvy_macro::dotenv;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{CorsLayer};
 use user::{registration, auth, get_user_by_username};
 
 mod entities;
