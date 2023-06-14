@@ -1,1 +1,1 @@
-### MADE BY ANDREW, ADRIAN AND KIRILL of russian  Lunar Arcanum Studio
+### MADE BY ANDREW, EDRIAN AND KIRILL of russian  Lunar Arcanum Studio
